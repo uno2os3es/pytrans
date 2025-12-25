@@ -12,8 +12,8 @@ translate_and_update(
 translate_and_update(
 source_file='words.txt',
 output_file='dic.json',
-batch_size=50, # دسته‌های کوچک‌تر
-num_processes=1, # بدون موازی‌سازی
+batch_size=50, # دستههای کوچکتر
+num_processes=1, # بدون موازیسازی
 delay=3.0 # تأخیر بیشتر
 )
 import random
@@ -46,7 +46,7 @@ api_key=api_key, # نیاز به API key دارد
 use_free_api=True
 ) # ... بقیه کد
 def translate_batch(words, source='fa', target='en'):
-"""ترجمه کلمات به صورت تک‌به‌تک"""
+"""ترجمه کلمات به صورت تکبهتک"""
 translator = GoogleTranslator(source=source, target=target)
 result = {}
 
