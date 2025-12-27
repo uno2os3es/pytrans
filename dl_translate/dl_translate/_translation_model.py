@@ -1,11 +1,9 @@
 import os
 import json
 from typing import Union, List, Dict
-
 import transformers
 import torch
 from tqdm.auto import tqdm
-
 from . import utils
 from .utils import _infer_model_family, _infer_model_or_path
 
@@ -20,7 +18,6 @@ def _select_device(device_selection):
         device = torch.device('cuda')
     else:
         device = torch.device(selected)
-
     return device
 
 
@@ -38,16 +35,13 @@ def _resolve_lang_codes(lang: str, name: str, model_family: str):
     else:
         lang_upper = lang.upper()
         lang_code_map_upper = {k.upper(): v for k, v in lang_code_map.items()}
-
         if lang_upper in lang_code_map_upper:
             code = lang_code_map_upper[lang_upper]
         else:
             code = lang
-
     # If the code is not valid, raises an error
     if code not in utils.available_codes(model_family):
         raise ValueError(error_message(name, code))
-
     return code
 
 
@@ -90,7 +84,6 @@ class TranslationModel:
     ):
         """
         *Instantiates a multilingual transformer model for translation.*
-
         {{params}}
         {{model_or_path}} The path or the name of the model. Equivalent to the first argument of `AutoModel.from_pretrained()`. You can also specify shorthands ("mbart50" and "m2m100").
         {{tokenizer_path}} The path to the tokenizer. By default, it will be set to `model_or_path`.
@@ -102,18 +95,15 @@ class TranslationModel:
         model_or_path = _infer_model_or_path(model_or_path)
         self.model_or_path = model_or_path
         self.device = _select_device(device)
-
         # Resolve default values
         tokenizer_path = tokenizer_path or self.model_or_path
         model_options = model_options or {}
         tokenizer_options = tokenizer_options or {}
         self.model_family = model_family or _infer_model_family(model_or_path)
-
         # Load the tokenizer
         TokenizerFast = _resolve_tokenizer(self.model_family)
         self._tokenizer = TokenizerFast.from_pretrained(tokenizer_path,
                                                         **tokenizer_options)
-
         # Load the model either from a saved torch model or from transformers.
         if model_or_path.endswith('.pt'):
             self._transformers_model = torch.load(
@@ -136,7 +126,6 @@ class TranslationModel:
     ) -> Union[str, List[str]]:
         """
         *Translates a string or a list of strings from a source to a target language.*
-
         {{params}}
         {{text}} The content you want to translate.
         {{source}} The language of the original text.
@@ -144,33 +133,25 @@ class TranslationModel:
         {{batch_size}} The number of samples to load at once. If set to `None`, it will process everything at once.
         {{verbose}} Whether to display the progress bar for every batch processed.
         {{generation_options}} The keyword arguments passed to `model.generate()`, where `model` is the underlying transformers model.
-
         Note:
         - Run `print(dlt.utils.available_languages())` to see what's available.
         - A smaller value is preferred for `batch_size` if your (video) RAM is limited.
         """
         if generation_options is None:
             generation_options = {}
-
         source = _resolve_lang_codes(source, 'source', self.model_family)
         target = _resolve_lang_codes(target, 'target', self.model_family)
-
         self._tokenizer.src_lang = source
-
         original_text_type = type(text)
         if original_text_type is str:
             text = [text]
-
         if batch_size is None:
             batch_size = len(text)
-
         generation_options.setdefault('forced_bos_token_id',
                                       self._tokenizer.lang_code_to_id[target])
         generation_options.setdefault('max_new_tokens', 512)
-
         data_loader = torch.utils.data.DataLoader(text, batch_size=batch_size)
         output_text = []
-
         tqdm_iterator = data_loader
         if verbose is True:
             tqdm_iterator = tqdm(data_loader)
@@ -180,19 +161,14 @@ class TranslationModel:
                                           return_tensors='pt',
                                           padding=True)
                 encoded.to(self.device)
-
                 generated_tokens = self._transformers_model.generate(
                     **encoded, **generation_options).cpu()
-
                 decoded = self._tokenizer.batch_decode(generated_tokens,
                                                        skip_special_tokens=True)
-
                 output_text.extend(decoded)
-
         # If text: str and output_text: List[str], then we should convert output_text to str
         if original_text_type is str and len(output_text) == 1:
             output_text = output_text[0]
-
         return output_text
 
     def get_transformers_model(self):
@@ -231,14 +207,12 @@ class TranslationModel:
     def save_obj(self, path: str = 'saved_model') -> None:
         """
         *Saves your model as a torch object and save your tokenizer.*
-
         {{params}}
         {{path}} The directory where you want to save your model and tokenizer
         """
         os.makedirs(path, exist_ok=True)
         torch.save(self._transformers_model, os.path.join(path, 'weights.pt'))
         self._tokenizer.save_pretrained(path)
-
         dlt_config = dict(model_family=self.model_family)
         json.dump(dlt_config, open(os.path.join(path, 'dlt_config.json'), 'w'))
 
@@ -247,7 +221,6 @@ class TranslationModel:
         """
         *Initialize `dlt.TranslationModel` from the torch object and tokenizer
         saved with `dlt.TranslationModel.save_obj`*
-
         {{params}}
         {{path}} The directory where your torch model and tokenizer are stored
         """

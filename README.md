@@ -1,6 +1,5 @@
 # Basic usage
 translate_and_update()
-
 # Custom configuration
 translate_and_update(
     source_file='my_words.txt',
@@ -17,11 +16,9 @@ num_processes=1, # بدون موازیسازی
 delay=3.0 # تأخیر بیشتر
 )
 import random
-
 def translate_with_retry(word, max_retries=3):
 """ترجمه با تلاش مجدد"""
 translator = GoogleTranslator(source='fa', target='en')
-
     for attempt in range(max_retries):
         try:
             translation = translator.translate(word)
@@ -33,10 +30,8 @@ translator = GoogleTranslator(source='fa', target='en')
                 time.sleep(wait_time)
             else:
                 return "[ERROR]"
-
     return "[ERROR]"
 from deep_translator import DeeplTranslator
-
 def translate_batch(words, source='fa', target='en', api_key=None):
 """استفاده از DeepL به جای Google"""
 translator = DeeplTranslator(
@@ -49,7 +44,6 @@ def translate_batch(words, source='fa', target='en'):
 """ترجمه کلمات به صورت تکبهتک"""
 translator = GoogleTranslator(source=source, target=target)
 result = {}
-
     for word in words:
         try:
             time.sleep(0.5)  # تأخیر بین هر ترجمه
@@ -59,7 +53,6 @@ result = {}
             print(f"خطا در ترجمه '{word}': {e}")
             result[word] = "[ERROR]"
             time.sleep(2)  # تأخیر بیشتر بعد از خطا
-
     return result
 translate_and_update(
 source_file='words.txt',

@@ -1,5 +1,4 @@
 from typing import Dict, List
-
 from ._pairs import _PAIRS_MBART50, _PAIRS_M2M100, _PAIRS_NLLB200
 
 
@@ -13,7 +12,6 @@ def _infer_model_family(model_or_path):
         'facebook/nllb-200-1.3B': 'nllb200',
         'facebook/nllb-200-3.3B': 'nllb200',
     }
-
     if model_or_path in di:
         return di[model_or_path]
     else:
@@ -33,7 +31,6 @@ def _infer_model_or_path(model_or_path):
         'nllb200-medium-regular': 'facebook/nllb-200-1.3B',
         'nllb200-large': 'facebook/nllb-200-3.3B',
     }
-
     return di.get(model_or_path, model_or_path)
 
 
@@ -76,7 +73,6 @@ def _dict_from_weights(weights: str) -> dict:
             'codes': tuple(pair[1] for pair in pairs),
             'pairs': dict(pairs),
         }
-
     else:
         error_message = f"Incorrect argument '{weights}' for parameter weights. Please choose from: {list(_weights2pairs().keys())}"
         raise ValueError(error_message)
@@ -85,7 +81,6 @@ def _dict_from_weights(weights: str) -> dict:
 def get_lang_code_map(weights: str = 'm2m100') -> Dict[str, str]:
     """
     *Get a dictionary mapping a language -> code for a given model. The code will depend on the model you choose.*
-
     {{params}}
     {{weights}} The name of the model you are using. For example, "mbart50" is the multilingual BART Large with 50 languages available to use.
     """
@@ -95,7 +90,6 @@ def get_lang_code_map(weights: str = 'm2m100') -> Dict[str, str]:
 def available_languages(weights: str = 'm2m100') -> List[str]:
     """
     *Get all the languages available for a given model.*
-
     {{params}}
     {{weights}} The name of the model you are using. For example, "mbart50" is the multilingual BART Large with 50 languages available to use.
     """
@@ -105,7 +99,6 @@ def available_languages(weights: str = 'm2m100') -> List[str]:
 def available_codes(weights: str = 'm2m100') -> List[str]:
     """
     *Get all the codes available for a given model. The code format will depend on the model you select.*
-
     {{params}}
     {{weights}} The name of the model you are using. For example, "mbart50" is the multilingual BART Large with 50 codes available to use.
     """
